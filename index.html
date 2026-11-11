@@ -375,7 +375,7 @@ function vStandings(ev){
   h+='<div class="gs">'+tableHTML(ra,'A',ca)+tableHTML(rb,'B',cb)+'</div>'+finalCard(ev);
   return h+'<p class="sub" style="margin-top:10px">각 조 1위가 결승(1구장)에서 만납니다. 조 순위 기준: 승점 → 다득점 → 골득실. 세 가지가 모두 같으면 &ldquo;동률&rdquo;로 표시하고 추첨으로 정합니다. 종료된 경기만 반영됩니다.</p>';}
 function program(){
-  var L=[{t:'16:55~'+cfg.starts[0],l:'장비 배부·착용 및 준비운동',d:'장비 작동을 확인하고, 준비를 마친 팀부터 첫 경기 구장으로 이동한다.',k:'pre'}];
+  var L=[{t:'16:55~'+cfg.starts[0],l:'장비 배부·착용 및 준비운동',k:'pre'}];
   for(var r=1;r<=3;r++){var tm=timeOf(r);L.push({t:tm.s+'~'+tm.e,l:'ROUND '+r,k:'rd'});
     var nx=r<3?cfg.starts[r]:cfg.starts[3];
     L.push(r<3?{t:tm.e+'~'+nx,l:'휴식·구장 이동',k:'rest'}:{t:tm.e+'~'+nx,l:'휴식·순위 집계·결승 진출팀 발표',k:'rest'});}
@@ -492,7 +492,6 @@ function posterSVG(ev){
   PG.forEach(function(x,i){var c=i<half?0:1,px=M+c*(colW+G),y=yy[c],gold=x.k==='fn',dim=x.k==='rest';
     out+=T(px,y+26,x.t,{m:1,s:22,f:gold?'#FFD76A':(dim?'#9DB8E8':'#FFFFFF')})+T(px+158,y+26,x.l,{s:dim?13:15,w:gold?700:500,f:gold?'#FFD76A':(dim?'#9DB8E8':'#E6EEFC')});
     var h=RHp;
-    if(x.d){out+=T(px+158,y+46,'장비 작동을 확인하고, 준비를 마친 팀부터',{s:12,f:'#BFD3F5'})+T(px+158,y+63,'첫 경기 구장으로 이동한다.',{s:12,f:'#BFD3F5'});h=RHp+30;}
     out+='<rect x="'+px+'" y="'+(y+h-8)+'" width="'+colW+'" height="1" fill="#FFFFFF" opacity=".15"/>';
     yy[c]+=h;});
   var yN=Math.max(yy[0],yy[1])+8;
