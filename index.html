@@ -117,6 +117,26 @@ button.primary{background:var(--red);color:#fff;border-color:var(--red);font-wei
 .fx-f .v.s{font-size:clamp(26px,4vw,34px);color:#fff;font-weight:900;letter-spacing:0}
 .fx-f .c{display:inline-block;margin-top:10px;padding:5px 14px;border:2px solid #FFD76A;color:#FFD76A;font-weight:900;font-size:14px}
 .fx-f .ct{font-size:12px;color:#BFD3F5;margin-top:8px}
+.ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ro-c{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--royal);padding:12px 14px 8px;min-width:0}
+.ro-c h3{margin:0 0 6px;display:flex;align-items:baseline;gap:8px;font-size:15px;color:var(--ink)}
+.ro-c .cd{font-family:var(--f-mark);font-size:24px;color:var(--royal);letter-spacing:.03em}
+.ro-c .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.ro-c small{color:var(--muted);font-weight:500;font-size:12px}
+.ro-c ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+.mgn{background:#FFD83A;color:#1a1a1a;padding:1px 6px;font-weight:700}
+.ro-c li.mg{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ro-c li i{font-style:normal;font-size:11px;color:var(--muted)}
+.mgnote{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid #FFD83A;background:var(--surface);font-size:14px}
+.ro-c li{padding:6px 0;border-top:1px solid var(--line);font-size:15px;font-weight:500;overflow-wrap:anywhere}
+.fx-b.fxs h3{color:#FFD76A;border-bottom-color:#FFD76A}
+.fx-sp{padding:18px 0 4px;display:grid;gap:6px}
+.fx-sp b.q{color:#FFD76A;animation:qb 1.8s ease-in-out infinite}
+@keyframes qb{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.fx-sp b.q{animation:none}}
+.fx-sp b{font-size:clamp(26px,4vw,34px);font-weight:900;letter-spacing:.02em}
+.fx-sp span{font-size:13px;color:#BFD3F5;line-height:1.5}
+@media (min-width:760px){.fx-b.fxs{grid-column:span 2}}
 .fx-q{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.15)}
 .fx-q .cd{font-family:var(--f-mark);font-size:20px;color:#8FBBFF}
 .fx-q .nm{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -231,9 +251,9 @@ var CCL={1:'#6EA2FF',2:'#F0B53A',3:'#FF7C92',4:'#B496F2'};
 var FONT='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
 var MARK='"Anton","Impact","Arial Black","Haettenschweiler",sans-serif';
 var HOST='한국프로축구연맹 교육지원팀',PARTNER='대한축구협회, 핏투게더';
-var cfg={title:'풋살 대회',subtitle:'축구산업아카데미 26기 · 대학생 마케터 DAY',date:'2026.11.14 (토)',hours:'17:00 ~ 19:00',place:'천안 코리아풋볼파크',matchMin:12,starts:['17:00','17:15','17:30','17:45'],announce:'19:00',teams:{}};
+var cfg={title:'풋살 대회',subtitle:'축구산업아카데미 26기 · 대학생 마케터 DAY',date:'2026.11.14 (토)',hours:'17:00 ~ 19:00',place:'천안 코리아풋볼파크',matchMin:13,starts:['17:15','17:33','17:51','18:15'],announce:'18:30',teams:{}};
 TEAMS.forEach(function(c,i){cfg.teams[c]={name:'',leader:'',size:[8,8,8,8,8,8,7,7][i]};});
-var RES={},ST={},LOG=[],FIN={h:'',a:'',champ:''};
+var RES={},ST={},LOG=[],FIN={h:'',a:'',champ:''},ROSTER={},SPECIAL='';
 var tab=(location.hash||'#standings').slice(1);
 var live=false,gotData=false,lastAt=0,lastChangeAt=0,failCount=0,errMsg='';
 
@@ -265,13 +285,14 @@ function hhmm(s){s=String(s||'').trim();var m=s.match(/(\d{1,2}):(\d{2})/);retur
 async function refresh(){
   try{
     // 시트의 '공개데이터' 탭: 모든 칸이 글자라 구글이 값을 빼먹지 않는다. 첫 칸(key)으로 찾는다.
-    var rows=await getSheet('공개데이터','A1:E60'),K={},R={},S={};
+    var rows=await getSheet('공개데이터','A1:E60'),K={},R={},S={},RO={};
     rows.forEach(function(r){var k=(r[0]||'').trim();
       if(k==='team'){var code=(r[1]||'').trim();
         if(TEAMS.indexOf(code)>=0)cfg.teams[code]={name:(r[2]||'').trim(),leader:(r[3]||'').trim(),size:+(r[4]||0)||0};}
       else if(k==='match'){var n=+r[1],h=(r[2]||'').trim(),a=(r[3]||'').trim(),s=(r[4]||'').trim();
         if(n>0){S['m'+n]=s;
           if(s==='완료'&&h!==''&&a!==''&&!isNaN(+h)&&!isNaN(+a))R['m'+n]={h:+h,a:+a,done:true};}}
+      else if(k==='roster'){var rc=(r[1]||'').trim();if(TEAMS.indexOf(rc)>=0)RO[rc]=(r[2]||'').split('|').map(function(x){x=x.trim();var mg=/^[*★]/.test(x);return {n:x.replace(/^[*★]\s*/,''),m:mg};}).filter(function(o){return o.n;});}
       else if(k)K[k]=(r[1]||'').trim();});
     var st=[1,2,3,4].map(function(i){return hhmm(K['start'+i]);});
     if(st.every(Boolean))cfg.starts=st;
@@ -281,7 +302,7 @@ async function refresh(){
     FIN={h:(K.finalHome||'').trim(),a:(K.finalAway||'').trim(),champ:(K.champion||'').trim()};
     if(!K.title&&!rows.length)throw new Error('데이터 없음');
     if(gotData)diffLog(RES,R);
-    RES=R;ST=S;live=true;gotData=true;lastAt=Date.now();failCount=0;errMsg='';
+    ROSTER=RO;SPECIAL=(K.specialCourt||'').trim();RES=R;ST=S;live=true;gotData=true;lastAt=Date.now();failCount=0;errMsg='';
   }catch(e){live=false;failCount++;errMsg=(e&&e.message)||'연결 실패';}
   render();}
 function diffLog(o,c){
@@ -315,7 +336,7 @@ function standings(ev,grp){
   ev.forEach(function(e){if(e.stage!=='league'||!e.done||e.hc[0]!==grp)return;var A=t[e.hc],B=t[e.ac],h=e.rec.h,a=e.rec.a;
     A.pl++;B.pl++;A.gf+=h;A.ga+=a;B.gf+=a;B.ga+=h;
     if(h>a){A.w++;B.l++;}else if(h<a){B.w++;A.l++;}else{A.d++;B.d++;}});
-  var rows=codes.map(function(c){var r=t[c];r.gd=r.gf-r.ga;r.pts=r.w*3+r.d;r.key=r.pts*1e7+(r.gd+500)*1e3+r.gf;return r;});
+  var rows=codes.map(function(c){var r=t[c];r.gd=r.gf-r.ga;r.pts=r.w*3+r.d;r.key=r.pts*1e7+r.gf*1e3+(r.gd+500);return r;});
   rows.forEach(function(r){r.rank=r.pl?1+rows.filter(function(o){return o.key>r.key;}).length:null;
     r.tie=r.pl>0&&rows.filter(function(o){return o.pl>0&&o.key===r.key;}).length>1;});
   rows.sort(function(a,b){return b.key-a.key||(a.c<b.c?-1:1);});
@@ -341,17 +362,17 @@ function finalCard(ev){
   if(FIN.champ)h+='<div class="champ">우승 · '+esc(tag(FIN.champ))+'</div>';
   return h;}
 function vStandings(ev){
-  var done=ev.filter(function(e){return e.done;}).length,h='<div class="ann"><span>완료 <b>'+done+' / '+ev.length+'</b> 경기</span><span>순위 발표 <b>'+esc(cfg.announce)+'</b></span></div>';
+  var done=ev.filter(function(e){return e.done;}).length,h='<div class="ann"><span>완료 <b>'+done+' / '+ev.length+'</b> 경기</span><span>결승 <b>'+esc(cfg.starts[3])+'</b></span></div>';
   var ca=grpDone(ev,'A'),cb=grpDone(ev,'B'),ra=standings(ev,'A'),rb=standings(ev,'B');
   var wait=[];
   if(ca&&!FIN.h&&ra.filter(function(r){return r.rank===1;}).length>1)wait.push('A조 1위가 동률입니다. 운영진이 정하는 대로 결승 진출 팀이 표시됩니다.');
   if(cb&&!FIN.a&&rb.filter(function(r){return r.rank===1;}).length>1)wait.push('B조 1위가 동률입니다. 운영진이 정하는 대로 결승 진출 팀이 표시됩니다.');
   if(wait.length)h+='<div class="banner">'+wait.map(esc).join('<br>')+'</div>';
   h+='<div class="gs">'+tableHTML(ra,'A',ca)+tableHTML(rb,'B',cb)+'</div>'+finalCard(ev);
-  return h+'<p class="sub" style="margin-top:10px">각 조 1위가 결승(1구장)에서 만납니다. 조 순위 기준: 승점 → 골득실 → 다득점. 세 가지가 모두 같으면 &ldquo;동률&rdquo;로 표시하고 현장에서 정합니다. 종료된 경기만 반영됩니다.</p>';}
+  return h+'<p class="sub" style="margin-top:10px">각 조 1위가 결승(1구장)에서 만납니다. 조 순위 기준: 승점 → 다득점 → 골득실. 세 가지가 모두 같으면 &ldquo;동률&rdquo;로 표시하고 추첨으로 정합니다. 종료된 경기만 반영됩니다.</p>';}
 function program(){var m=String(cfg.hours).match(/(\d{1,2}:\d{2})\s*~\s*(\d{1,2}:\d{2})/),o=m?m[1]:cfg.starts[0],c=m?m[2]:'';
-  var L=[[o,'개회·안내'],[cfg.starts[0],'ROUND 1'],[cfg.starts[1],'ROUND 2'],[cfg.starts[2],'ROUND 3'],[cfg.starts[3],'결승'],[cfg.announce,'시상·순위 발표']];
-  if(c)L.push([c,'폐회']);return L;}
+  var L=[[o,'개회·안내'],[cfg.starts[0],'ROUND 1'],[cfg.starts[1],'ROUND 2'],[cfg.starts[2],'ROUND 3'],[cfg.starts[3],'결승']];
+  return L;}
 function vBracket(ev){
   function row(e){var r=e.rec,hw=e.done&&r.h>r.a,aw=e.done&&r.a>r.h;
     return '<div class="fx-r" style="--cc:'+CCL[e.court]+'"><span class="n">'+e.court+'</span><span class="t h'+(aw?' l':'')+'">'+esc(tag(e.hc))+'</span>'+
@@ -366,11 +387,15 @@ function vBracket(ev){
   h+='<section class="fx-b fxf"><h3>FINAL<small>'+t4.s+' – '+t4.e+' · 1구장</small></h3><div class="fx-f"><div class="t'+(f.done&&fr.a>fr.h?' l':'')+'">'+esc(slot(f,'h'))+'</div>'+
     (f.done?'<div class="v s">'+fr.h+' : '+fr.a+'</div>':'<div class="v">VS</div>')+'<div class="t'+(f.done&&fr.h>fr.a?' l':'')+'">'+esc(slot(f,'a'))+'</div>'+
     (FIN.champ?'<div class="c">우승 · '+esc(tag(FIN.champ))+'</div>':'<div class="ct">각 조 1위 맞대결</div>')+'</div></section>';
-  ['A','B'].forEach(function(g){
-    h+='<section class="fx-b"><h3>GROUP '+g+'<small>'+(g==='A'?'1·2구장':'3·4구장')+'</small></h3>'+TEAMS.filter(function(c){return c[0]===g;}).map(function(c){var t=cfg.teams[c];
-      return '<div class="fx-q"><span class="cd">'+c+'</span><span class="nm'+(hasName(c)?'':' nn')+'">'+esc(hasName(c)?t.name:'팀명 미정')+'</span><span class="ld">'+(t.leader?'팀장 '+esc(t.leader)+' · ':'')+t.size+'명</span></div>';}).join('')+'</section>';});
+  h+='<section class="fx-b fxs"><h3>SPECIAL MATCH<small>AFTER THE FINAL</small></h3><div class="fx-sp"><b class="q">? ? ? &nbsp;VS&nbsp; ? ? ?</b><span>결승이 끝나도 경기는 끝나지 않습니다.<br>무슨 경기일지는 현장에서 직접 확인하세요.</span></div></section>';
   h+='</div><div class="fx-pg">'+program().map(function(x,i,arr){return '<div'+(x[1]==='결승'?' class="k"':'')+'><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>';}).join('')+'</div><div class="fx-note"><span>*경기 시간과 구장은 현장 사정에 따라 변경될 수 있습니다</span><span>'+esc(cfg.date)+' · '+esc(cfg.place)+'</span></div></div>';
   return h;}
+function vRoster(){
+  var h='<p class="sub">팀 코드별 팀원 명단입니다. 현장에서 팀이 정해지면 팀명도 함께 표시됩니다.</p><p class="mgnote"><span class="mgn">노란색</span> 이름은 팀 매니저입니다. 매니저는 경기 점수 집계와 경기 진행 관리를 맡습니다.</p><div class="ro">';
+  TEAMS.forEach(function(c){var m=ROSTER[c]||[];
+    h+='<section class="ro-c"><h3><span class="cd">'+c+'</span><span class="nm">'+(hasName(c)?esc(cfg.teams[c].name):'')+'</span><small>'+m.length+'명</small></h3>'+
+      (m.length?'<ul>'+m.map(function(o){return '<li'+(o.m?' class="mg"':'')+'>'+(o.m?'<span class="mgn">'+esc(o.n)+'</span><i>매니저</i>':esc(o.n))+'</li>';}).join('')+'</ul>':'<p class="sub">명단 준비 중</p>')+'</section>';});
+  return h+'</div>';}
 function vCourts(ev){
   var h='<p class="sub">구장마다 어느 팀이 어떤 결과를 냈는지 한눈에 봅니다. A조는 1·2구장, B조는 3·4구장에서 진행하고 결승은 1구장입니다.</p><div class="grid2">';
   [1,2,3,4].forEach(function(c){
@@ -402,7 +427,7 @@ function vMonitor(ev){
   var nl=TEAMS.filter(function(c){return !cfg.teams[c].leader;}).length;
   nl?item('info','팀장 미입력 '+nl+'/8팀'):item('ok','팀장 8명 입력 완료');
   var sum=TEAMS.reduce(function(s,c){return s+(cfg.teams[c].size||0);},0);
-  sum===62?item('ok','인원 합계 62명 일치'):item('bad','인원 합계 '+sum+'명 (62명과 다름)');
+  item('info','인원 합계 '+sum+'명 (시트 설정 탭 기준)');
   if(todayIsEventDay()){var nowm=new Date().getHours()*60+new Date().getMinutes();
     var late=ev.filter(function(e){if(e.done)return false;var p=timeOf(e.round).e.split(':');return nowm>+p[0]*60+ +p[1]+3;});
     late.length?item('bad','종료 시각이 지났는데 결과가 없는 경기 '+late.length+'개: '+late.map(function(e){return e.n+'경기('+e.court+'구장 '+e.round+'R)';}).join(', ')):item('ok','지연된 경기 없음');}
@@ -415,7 +440,7 @@ function vMonitor(ev){
   else item('info','결승 진출 팀은 각 조 6경기가 끝나면 자동으로 정해집니다');
   h+='</ul><h2>최근 반영 기록</h2>';
   h+=LOG.length?'<ul class="chk log">'+LOG.slice(0,12).map(function(l){return '<li class="info"><span class="ic">·</span><span>'+clock(l.t)+' &nbsp;'+esc(l.msg)+'</span></li>';}).join('')+'</ul>':'<p class="sub">이 화면을 연 뒤 새로 입력된 점수가 여기에 쌓입니다.</p>';
-  h+='<h2>바로가기</h2><div class="links"><a href="https://docs.google.com/spreadsheets/d/'+esc(SHEET_ID)+'/edit" target="_blank" rel="noopener">입력 시트 열기</a><a href="#standings">참가자 순위 화면</a><a href="#tv">TV 모드</a></div>';
+  h+='<h2>바로가기</h2><div class="links"><a href="https://docs.google.com/spreadsheets/d/'+esc(SHEET_ID)+'/edit" target="_blank" rel="noopener">입력 시트 열기</a><a href="#standings">참가자 순위 화면</a></div>';
   return h;}
 
 /* ---------- 대진표 포스터 (화면과 PNG 저장 공용) ---------- */
@@ -450,11 +475,12 @@ function posterSVG(ev){
   out+=f.done?T(fc,Y1+HB+100,fr.h+' : '+fr.a,{s:38,w:900,a:'middle'}):T(fc,Y1+HB+96,'VS',{s:16,f:'#9DB8E8',a:'middle',ls:'6'});
   out+=T(fc,Y1+HB+148,clip(slot(f,'a'),9).toUpperCase(),{s:28,w:900,a:'middle',op:f.done&&fr.h>fr.a?.5:1});
   out+=FIN.champ?'<rect x="'+(fc-110)+'" y="'+(Y1+HB+176)+'" width="220" height="38" fill="none" stroke="'+gold+'" stroke-width="2.5"/>'+T(fc,Y1+HB+202,'우승 · '+clip(tag(FIN.champ),8),{s:18,w:900,f:gold,a:'middle'}):T(fc,Y1+HB+200,'각 조 1위 맞대결',{s:14,f:'#BFD3F5',a:'middle'});
-  ['A','B'].forEach(function(g,gi){var x=M+(gi+1)*(CWd+G);
-    out+=head(x,Y1,'GROUP '+g,g==='A'?'1·2구장':'3·4구장');
-    TEAMS.filter(function(c){return c[0]===g;}).forEach(function(c,i){var y=Y1+HB+i*RH,t=cfg.teams[c];
-      out+=T(x,y+27,c,{m:1,s:26,f:'#8FBBFF'})+T(x+50,y+27,hasName(c)?clip(t.name,9):'팀명 미정',{s:19,w:hasName(c)?700:500,op:hasName(c)?1:.5})+
-        T(x+50,y+49,(t.leader?'팀장 '+clip(t.leader,6)+' · ':'')+t.size+'명',{s:13,f:'#BFD3F5'})+line(x,y+RH-1);});});
+  var xs=M+(CWd+G);
+  var ws=2*CWd+G;
+  out+=T(xs,Y1+30,'SPECIAL MATCH',{m:1,s:36,f:gold,ls:'1'})+T(xs+ws,Y1+28,'AFTER THE FINAL',{s:14,f:gold,a:'end',ls:'2'})+'<rect x="'+xs+'" y="'+(Y1+44)+'" width="'+ws+'" height="2.5" fill="'+gold+'"/>';
+  out+=T(xs,Y1+HB+62,'? ? ?   VS   ? ? ?',{s:34,w:900,f:gold,ls:'4'});
+  out+=T(xs,Y1+HB+100,'결승이 끝나도 경기는 끝나지 않습니다.',{s:16,f:'#CFE0FA'});
+  out+=T(xs,Y1+HB+126,'무슨 경기일지는 현장에서 직접 확인하세요.',{s:16,f:'#CFE0FA'});
   var PG=program(),pw=(W-2*M)/PG.length,yP=Y1+BH+44;
   out+='<rect x="'+M+'" y="'+yP+'" width="'+(W-2*M)+'" height="2.5" fill="#FFFFFF"/>';
   PG.forEach(function(x,i){var px=M+i*pw,k=x[1]==='결승';out+=T(px,yP+36,x[0],{m:1,s:28,f:k?gold:'#FFFFFF'})+T(px,yP+60,x[1],{s:14,f:'#CFE0FA'});});
@@ -482,7 +508,7 @@ function render(){
   document.getElementById('meta').textContent=cfg.date+' '+cfg.hours+'  |  '+cfg.place+(cfg.subtitle.indexOf('·')>0?'  |  '+cfg.subtitle.split('·').slice(1).join('·').trim():'');
   document.getElementById('foot').innerHTML='<div><b>일정</b><span>'+esc(cfg.date)+'</span><small>'+esc(cfg.hours)+'</small></div><div><b>장소</b><span>'+esc(cfg.place)+'</span></div><div><b>주최</b><small>'+esc(HOST)+'</small><b style="margin-top:6px">협력</b><small>'+esc(PARTNER)+'</small></div>';
   document.title='GOALYMPUS '+cfg.title;
-  var T=[['standings','순위'],['bracket','대진표'],['courts','구장별'],['tv','TV 모드']];
+  var T=[['standings','순위'],['roster','명단'],['bracket','대진표'],['courts','구장별']];
   if(tab==='monitor')T.push(['monitor','관제']);
   else if(!T.some(function(x){return x[0]===tab;}))tab='standings';
   document.body.classList.toggle('tv',tab==='tv');
@@ -493,15 +519,13 @@ function render(){
   document.getElementById('notice').innerHTML=(!live&&location.protocol==='file:')?'<div class="banner">이 파일을 더블클릭으로 직접 열면 구글 보안 때문에 시트를 읽을 수 없습니다. 같은 폴더의 <b>화면_열기.command</b>로 열거나, 인터넷 주소(GitHub Pages)로 여세요.</div>':((!live&&errMsg)?'<div class="banner">시트를 불러오지 못했습니다 ('+esc(errMsg)+'). 잠시 뒤 자동으로 다시 시도합니다.</div>':'');
   var ev=evalAll(),h='';
   if(tab==='standings')h=vStandings(ev);else if(tab==='bracket')h=vBracket(ev);else if(tab==='monitor')h=vMonitor(ev);
-  else if(tab==='tv'){var pg=Math.floor(Date.now()/12000)%2;
-    h='<div class="tvbar"><b>'+(pg?'구장별 결과':'실시간 순위')+'</b><span>· 12초마다 자동 전환</span></div>'+(pg?vCourts(ev):vStandings(ev));}
+  else if(tab==='roster')h=vRoster();
   else h=vCourts(ev);
   document.getElementById('app').innerHTML=h;}
 window.addEventListener('resize',function(){if(tab==='bracket')render();});
 window.addEventListener('hashchange',function(){tab=location.hash.slice(1)||'standings';render();window.scrollTo(0,0);});
 document.getElementById('app').addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b&&b.dataset.act==='png')savePNG();});
 render();refresh();setInterval(refresh,POLL_MS);
-setInterval(function(){if(tab==='tv'||tab==='monitor')render();},tab==='monitor'?1000:4000);
 setInterval(function(){if(tab==='monitor')render();},1000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
 })();
