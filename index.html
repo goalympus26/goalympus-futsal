@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>GOALYMPUS 풋살 대회</title>
+<title>GOALYMPUS 핏투게더 EPTS 장비 실습</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
@@ -230,7 +230,7 @@ body.tv .grid2{grid-template-columns:repeat(2,1fr)}
 <header class="hero"><div class="hero-in">
   <div class="sub1" id="sub1">축구산업아카데미 26기</div>
   <div class="mark" aria-label="GOALYMPUS"><span class="g">GOAL</span><span class="y">YMPUS</span></div>
-  <div class="rule"><i></i><b id="ttl">풋살 대회</b><i></i></div>
+  <div class="rule"><i></i><b id="ttl">핏투게더 EPTS 장비 실습</b><i></i></div>
   <div class="meta" id="meta"></div>
   <div class="conn"><span class="dot" id="dot"></span><span id="connt">연결 중</span></div>
 </div></header>
@@ -255,7 +255,7 @@ var CCL={1:'#6EA2FF',2:'#F0B53A',3:'#FF7C92',4:'#B496F2'};
 var FONT='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
 var MARK='"Anton","Impact","Arial Black","Haettenschweiler",sans-serif';
 var HOST='한국프로축구연맹 교육지원팀',PARTNER='대한축구협회, 핏투게더';
-var cfg={title:'풋살 대회',subtitle:'축구산업아카데미 26기 · 대학생 마케터 DAY',date:'2026.11.14 (토)',hours:'17:00 ~ 19:00',place:'천안 코리아풋볼파크',matchMin:13,starts:['17:15','17:33','17:51','18:15'],announce:'18:30',teams:{}};
+var cfg={title:'핏투게더 EPTS 장비 실습',subtitle:'축구산업아카데미 26기 · 대학생 마케터 DAY',date:'2026.11.14 (토)',hours:'17:00 ~ 19:00',place:'천안 코리아풋볼파크',matchMin:13,starts:['17:15','17:33','17:51','18:15'],announce:'18:30',teams:{}};
 TEAMS.forEach(function(c,i){cfg.teams[c]={name:'',leader:'',size:[8,8,8,8,8,8,7,7][i]};});
 var RES={},ST={},LOG=[],FIN={h:'',a:'',champ:''},ROSTER={},SPECIAL='';
 var tab=(location.hash||'#standings').slice(1);
@@ -401,7 +401,7 @@ function vBracket(ev){
   return h;}
 function vRoster(){
   var h='<p class="sub">팀 코드별 팀원 명단입니다. 현장에서 팀이 정해지면 팀명도 함께 표시됩니다.</p><p class="mgnote"><span class="mgn">노란색</span> 이름 옆에 &lsquo;매니저&rsquo;가 표시된 분이 팀 매니저입니다. 매니저는 경기 점수 집계와 경기 진행 관리를 맡습니다.</p><div class="ro">';
-  TEAMS.forEach(function(c){var m=(ROSTER[c]||[]).slice(),mi=m.findIndex(function(o){return o.m;});if(mi>1){var mo=m.splice(mi,1)[0];m.splice(1,0,mo);}else if(mi===0&&m.length>1){var m0=m.splice(0,1)[0];m.splice(1,0,m0);}
+  TEAMS.forEach(function(c){var m=ROSTER[c]||[];
     h+='<section class="ro-c"><h3><span class="cd">'+c+'</span><span class="nm">'+(hasName(c)?esc(cfg.teams[c].name):'')+'</span><small>'+m.length+'명</small></h3>'+
       (m.length?'<ul>'+m.map(function(o){return '<li'+(o.m?' class="mg"':'')+'>'+(o.m?'<span class="mgn">'+esc(o.n)+'</span><i>매니저</i>':esc(o.n))+'</li>';}).join('')+'</ul>':'<p class="sub">명단 준비 중</p>')+'</section>';});
   return h+'</div>';}
