@@ -1,0 +1,21 @@
+sport,soccer,,,
+title,핏투게더 EPTS 장비 실습,,,
+periodMin,20,,,
+start1,17:15,,,
+start2,17:40,,,
+start3,18:05,,,
+announce,18:30,,,
+winPts,3,,,
+drawPts,1,,,
+team,T1,TEAM A,,A1|A2|A3|A4
+team,T2,TEAM B,,B1|B2|B3|B4
+squad,T1,1,,
+squad,T1,2,,
+squad,T1,3,,
+squad,T2,1,,
+squad,T2,2,,
+squad,T2,3,,
+period,1,,,대기
+period,2,,,대기
+period,3,,,대기
+pk,,,,

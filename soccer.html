@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GOALYMPUS 축구 · 핏투게더 EPTS 장비 실습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* 풋살 index.html의 디자인을 그대로 가져오고, 아래에 축구 전용 스타일을 덧붙인다. */
+/* 디자인 기준: GOALYMPUS 포스터. 하늘색 바탕, 빨강 GOAL, 네이비 YMPUS, 로열블루 숫자, 넓게 벌린 한글 소제목.
+   구성: 상단 히어로(워드마크) · 탭 · 본문 · 하단 행사 정보 띠. 입력은 구글 시트에서 한다. */
+:root{
+  --bg:#EAF2FD; --surface:#FFFFFF; --ink:#0E2356; --muted:#5A6B8C; --line:#C9D8EF;
+  --navy:#0E2356; --red:#E9232B; --royal:#2A52A8; --sky1:#6FAEEF; --sky2:#BCD9F8;
+  --ok:#168A5B; --live:#E9232B; --warn:#B26A00; --gold:#F2C94C; --silver:#C9CFCB; --bronze:#E0A57C;
+  --c1:#2F6FDB; --c2:#C98500; --c3:#D6455D; --c4:#7A4BC9;
+  --hero-ink:#0E2356; --y-color:#0E2356; --mg:#B07A00;
+  --f-display:"Black Han Sans","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mark:"Anton","Impact","Arial Black","Haettenschweiler",sans-serif;
+  --f-body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0A1630; --surface:#12254A; --ink:#EAF0FF; --muted:#9DB0D6; --line:#22396B;
+  --navy:#EAF0FF; --royal:#7FA6FF; --sky1:#0B1F4D; --sky2:#0A1630; --ok:#4CC28F; --live:#FF6B5E; --warn:#F0B14A;
+  --c1:#6EA2FF; --c2:#F0B53A; --c3:#FF7C92; --c4:#B496F2; --hero-ink:#EAF0FF; --y-color:#FFFFFF; --mg:#FFD83A; color-scheme:dark;}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(0px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:980px;margin:0 auto}
+/* 히어로 */
+.hero{position:relative;overflow:hidden;text-align:center;
+  margin-left:calc(-1*max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)));
+  padding:calc(18px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) 20px;
+  background:
+    radial-gradient(55% 90% at 12% 25%,rgba(255,255,255,.85),transparent 62%),
+    radial-gradient(45% 80% at 88% 8%,rgba(255,255,255,.75),transparent 62%),
+    radial-gradient(40% 60% at 60% 85%,rgba(255,255,255,.55),transparent 65%),
+    linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 75%,var(--bg) 100%);}
+@media (prefers-color-scheme: dark){.hero{background:radial-gradient(60% 90% at 20% 0%,rgba(80,130,230,.35),transparent 65%),linear-gradient(180deg,#0B1F4D 0%,#0A1630 100%);}}
+.hero-in{max-width:980px;margin:0 auto;position:relative}
+.sub1{font-size:clamp(11px,2.6vw,17px);font-weight:500;letter-spacing:.42em;color:var(--hero-ink);padding-left:.42em}
+.mark{font-family:var(--f-mark);font-size:clamp(46px,14vw,104px);line-height:1;letter-spacing:-.01em;transform:skewX(-8deg);margin:6px 0 4px;white-space:nowrap}
+.mark .g{color:var(--red);text-shadow:0 0 22px rgba(255,255,255,.55)}
+.mark .y{color:var(--y-color);text-shadow:0 0 22px rgba(255,255,255,.4)}
+.rule{display:flex;align-items:center;gap:14px;justify-content:center;color:var(--hero-ink)}
+.rule i{height:1px;background:var(--hero-ink);opacity:.65;flex:1;max-width:190px}
+.rule b{font-size:clamp(15px,3.6vw,24px);font-weight:900;letter-spacing:.02em;white-space:nowrap}
+.meta{margin-top:8px;font-size:clamp(12px,2.8vw,15px);color:var(--hero-ink);font-weight:500}
+.conn{margin-top:10px;font-size:12px;color:var(--hero-ink);display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.55);padding:3px 10px;border-radius:99px}
+@media (prefers-color-scheme: dark){.conn{background:rgba(255,255,255,.1)}}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--ok)} .dot.bad{background:var(--live)}
+/* 탭 */
+nav{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);margin:0 0 16px;position:sticky;top:0;background:var(--bg);z-index:5}
+nav a{padding:12px 16px;color:var(--muted);text-decoration:none;font-weight:700;white-space:nowrap;border-bottom:4px solid transparent;margin-bottom:-2px}
+nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--red)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--royal);outline-offset:2px}
+.banner{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--warn);padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 12px}
+h2{font-size:16px;margin:22px 0 10px;letter-spacing:.04em}
+/* 표 */
+table{width:100%;border-collapse:collapse;background:var(--surface);font-variant-numeric:tabular-nums}
+th,td{padding:10px 6px;text-align:center;border-bottom:1px solid var(--line)}
+th{font-size:12px;color:#fff;background:var(--navy);font-weight:500;white-space:nowrap}
+@media (prefers-color-scheme: dark){th{color:var(--bg)}}
+td.team{text-align:left;font-weight:700}
+td.team small{font-weight:400;color:var(--muted);margin-left:6px}
+tr.r1 td:first-child{box-shadow:inset 5px 0 var(--gold)} tr.r2 td:first-child{box-shadow:inset 5px 0 var(--silver)} tr.r3 td:first-child{box-shadow:inset 5px 0 var(--bronze)}
+.rk{font-family:var(--f-display);font-size:18px;color:var(--royal)}
+.pts{font-weight:900;font-size:17px;color:var(--royal)}
+.tie{font-size:11px;color:var(--warn)}
+.scroll{overflow-x:auto}
+.ann{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--red);padding:10px 12px;margin-bottom:14px;font-size:14px}
+.ann b{font-variant-numeric:tabular-nums;color:var(--royal)}
+/* 구장별 */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.court{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--cc)}
+.court h3{margin:0;padding:10px 12px 0;font-size:16px;display:flex;justify-content:space-between;align-items:baseline}
+.court h3 span{font-size:12px;color:var(--muted);font-weight:400}
+.m{padding:10px 12px;border-top:1px solid var(--line)}
+.m:first-of-type{border-top:0}
+.mh{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0}
+.tn{font-weight:500;min-width:0;overflow-wrap:anywhere}
+.tn.w{font-weight:900}
+.sc{font-family:var(--f-display);font-size:24px;min-width:2ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--royal)}
+.done-t{color:var(--ok);font-weight:700} .wait-t{color:var(--muted)}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 14px;min-height:44px}
+button.primary{background:var(--red);color:#fff;border-color:var(--red);font-weight:700}
+.actions{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.poster{background:#fff;border:1px solid var(--line);overflow-x:auto}
+.poster svg{display:block;width:100%;height:auto;min-width:640px}
+/* 대진표 (LIST OF MATCHES 스타일): 진한 블루 그라데이션 위에 흰 글씨, 3열 블록 */
+.fx{position:relative;overflow:hidden;color:#fff;padding:clamp(20px,5vw,44px);
+  background:radial-gradient(55% 45% at 88% 0%,rgba(111,174,239,.55),transparent 68%),radial-gradient(60% 55% at 0% 100%,rgba(42,82,168,.95),transparent 70%),linear-gradient(160deg,#0E2356 0%,#173A86 55%,#2A52A8 100%)}
+.fx-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 20px;flex-wrap:wrap}
+.fx h2{font-family:var(--f-mark);font-weight:400;font-size:clamp(40px,10.4vw,80px);line-height:.92;margin:0;letter-spacing:.01em;color:#fff}
+.fx-kr{font-size:clamp(12px,2.6vw,16px);letter-spacing:.22em;color:#CFE0FA;margin-top:8px;font-weight:500}
+.fx-logo{font-family:var(--f-mark);font-size:clamp(20px,4vw,30px);line-height:1;transform:skewX(-8deg);white-space:nowrap}
+.fx-logo .g{color:#FF4B50} .fx-logo .y{color:#fff}
+.fx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:clamp(24px,4vw,40px) clamp(20px,3.5vw,40px);margin-top:clamp(24px,4vw,40px)}
+.fx-b h3{font-family:var(--f-mark);font-weight:400;font-size:clamp(24px,3.6vw,32px);letter-spacing:.04em;margin:0;padding-bottom:8px;border-bottom:2px solid rgba(255,255,255,.85);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fx-b h3 small{font-family:var(--f-body);font-size:12px;letter-spacing:.03em;color:#BFD3F5;font-weight:500}
+.fx-b.fxf h3{color:#FFD76A;border-bottom-color:#FFD76A}
+.fx-r{display:grid;grid-template-columns:22px 1fr 34px 1fr;gap:8px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:15px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+.fx-r .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;color:#0E2356;background:var(--cc)}
+.fx-r .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-r .t.h{text-align:right}
+.fx-r .t.l{opacity:.5}
+.fx-r .v{font-size:11px;color:#9DB8E8;font-weight:500;text-align:center;letter-spacing:.08em}
+.fx-r .v.s{font-size:15px;color:#fff;font-weight:900;letter-spacing:0}
+.fx-f{padding:14px 0 4px;text-align:center}
+.fx-f .t{font-size:clamp(20px,3vw,24px);font-weight:900;text-transform:uppercase;letter-spacing:.02em;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-f .t.l{opacity:.5}
+.fx-f .v{font-size:13px;color:#9DB8E8;letter-spacing:.3em;margin:2px 0}
+.fx-f .v.s{font-size:clamp(26px,4vw,34px);color:#fff;font-weight:900;letter-spacing:0}
+.fx-f .c{display:inline-block;margin-top:10px;padding:5px 14px;border:2px solid #FFD76A;color:#FFD76A;font-weight:900;font-size:14px}
+.fx-f .ct{font-size:12px;color:#BFD3F5;margin-top:8px}
+.ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ro-c{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--royal);padding:12px 14px 8px;min-width:0}
+.ro-c h3{margin:0 0 6px;display:flex;align-items:baseline;gap:8px;font-size:15px;color:var(--ink)}
+.ro-c .cd{font-family:var(--f-mark);font-size:24px;color:var(--royal);letter-spacing:.03em}
+.ro-c .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.ro-c small{color:var(--muted);font-weight:500;font-size:12px}
+.ro-c ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+.mgn{color:var(--mg);font-weight:700}
+.ro-c li.mg{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ro-c li i{font-style:normal;font-size:11px}
+.mgnote{margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--mg);background:var(--surface);font-size:14px}
+.ro-c li i{color:var(--mg)}
+.ro-c li{padding:6px 0;border-top:1px solid var(--line);font-size:15px;font-weight:500;overflow-wrap:anywhere}
+.fx-b.fxs h3{color:#FFD76A;border-bottom-color:#FFD76A}
+.fx-f .t.q{color:#FFD76A;animation:qb 1.8s ease-in-out infinite}
+@keyframes qb{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.fx-f .t.q{animation:none}}
+.fx-duo{--g:clamp(20px,3.5vw,40px);display:grid;grid-template-columns:1fr;gap:clamp(24px,4vw,40px) var(--g);margin:clamp(24px,4vw,40px) auto 0}
+@media (min-width:760px){.fx-duo{grid-template-columns:1fr 1fr;width:calc((100% - 2*var(--g))*2/3 + var(--g))}}
+.fx-duo .fx-b h3{flex-wrap:nowrap;font-size:clamp(22px,2.4vw,26px)}
+.fx-duo .fx-b h3 small{white-space:nowrap;font-size:11px;letter-spacing:0}
+.fx-q{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.15)}
+.fx-q .cd{font-family:var(--f-mark);font-size:20px;color:#8FBBFF}
+.fx-q .nm{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-q .nm.nn{opacity:.5;font-weight:500}
+.fx-q .ld{font-size:12px;color:#BFD3F5;white-space:nowrap}
+.fx-ct{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:13px;color:#E6EEFC}
+.fx-ct span{display:inline-flex;align-items:center;gap:6px}
+.fx-ct em{font-style:normal;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:900;color:#0E2356;background:var(--cc)}
+.fx-pg{display:grid;grid-template-columns:1fr;margin-top:clamp(24px,4vw,36px);border-top:2px solid rgba(255,255,255,.85)}
+@media (min-width:760px){.fx-pg{grid-template-columns:1fr 1fr;column-gap:clamp(20px,3.5vw,40px)}}
+.fx-pg .tl{display:grid;grid-template-columns:128px 1fr;column-gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.15)}
+.fx-pg .tl b{font-family:var(--f-mark);font-weight:400;font-size:19px;letter-spacing:.03em;color:#fff;white-space:nowrap}
+.fx-pg .tl span{font-size:14px;color:#E6EEFC;font-weight:500}
+.fx-pg .tl small{grid-column:2;margin-top:3px;font-size:12px;line-height:1.45;color:#BFD3F5}
+.fx-pg .rest b{color:#9DB8E8}.fx-pg .rest span{color:#9DB8E8;font-size:13px;font-weight:400}
+.fx-pg .fn b,.fx-pg .fn span{color:#FFD76A;font-weight:700}
+.fx-note{margin:clamp(22px,4vw,36px) 0 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.3);font-size:12px;color:#BFD3F5;display:flex;flex-wrap:wrap;gap:4px 18px;justify-content:space-between}
+
+/* 관제 */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:6px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--royal);padding:12px}
+.kpi small{color:var(--muted);display:block;font-size:12px}
+.kpi b{font-size:22px;font-family:var(--f-display);font-weight:400;display:block;margin:2px 0}
+.kpi.ok{border-top-color:var(--ok)} .kpi.bad{border-top-color:var(--live)}
+.bar{height:10px;background:var(--line);margin-top:6px}
+.bar i{display:block;height:100%;background:var(--royal)}
+.chk{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line)}
+.chk li{padding:9px 12px;border-top:1px solid var(--line);display:flex;gap:10px;font-size:14px}
+.chk li:first-child{border-top:0}
+.chk .ic{width:1.4em;text-align:center;font-weight:900}
+.chk .ok .ic{color:var(--ok)} .chk .bad .ic{color:var(--live)} .chk .info .ic{color:var(--royal)}
+.chk .bad{background:color-mix(in srgb,var(--live) 8%,transparent)}
+.log{font-variant-numeric:tabular-nums;font-size:13px}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.links a{display:inline-block;padding:10px 14px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:700}
+/* 하단 행사 띠 */
+.foot{margin:28px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0 calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  background:#0E2356;color:#fff;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px))}
+.foot-in{max-width:980px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 24px;font-size:13px}
+.foot b{display:block;color:#F2C94C;font-size:12px;letter-spacing:.2em;margin-bottom:2px}
+.foot span{font-size:15px;font-weight:700}
+.foot small{display:block;opacity:.85;font-size:12px}
+.rc{background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
+.rc h3{margin:0;padding:8px 12px;font-size:14px;background:var(--navy);color:#fff;font-weight:500}
+@media (prefers-color-scheme: dark){.rc h3{color:var(--bg)}}
+.rc h3 b{font-family:var(--f-display);font-weight:400;font-size:18px;margin-right:6px}
+.rr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--line)}
+.rr:first-of-type{border-top:0}
+.cb{color:#fff;font-size:12px;font-weight:700;padding:2px 8px;min-width:54px;text-align:center}
+.rt{flex:1;font-weight:700;min-width:0}
+.rt i{font-weight:400;color:var(--muted);font-style:normal;margin:0 2px}
+.sc2{font-family:var(--f-display);font-weight:400;color:var(--royal);font-size:18px}
+.gs{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media (max-width:760px){.gs{grid-template-columns:1fr}}
+.gh{margin:0 0 8px;font-size:18px;letter-spacing:.04em}
+.gh em{font-style:normal;font-size:12px;color:var(--ok);margin-left:8px;font-weight:700}
+.fin{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--red);padding:14px;margin-top:18px}
+.fin h3{margin:0 0 10px;font-size:16px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.fin .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center}
+.fin .tm{font-weight:900;font-size:19px;overflow-wrap:anywhere}
+.fin .sc3{font-family:var(--f-display);font-size:34px;color:var(--royal);white-space:nowrap}
+.champ{margin-top:12px;background:linear-gradient(90deg,#F2C94C,#FFE9A0);color:#0E2356;padding:14px;text-align:center;font-weight:900;font-size:20px}
+.rc.fnl h3{background:var(--red);color:#fff}
+tr.r1 td:first-child{box-shadow:inset 5px 0 var(--gold)} tr.r2 td:first-child{box-shadow:inset 5px 0 var(--silver)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;font-size:14px;z-index:20;max-width:90vw}
+/* 폰 */
+th{white-space:nowrap}
+@media (max-width:480px){
+  th,td{padding:9px 3px}
+  table.st th:nth-child(8),table.st td:nth-child(8){display:none}
+  td.team small{display:block;margin:0}
+}
+/* TV */
+body.tv{font-size:clamp(18px,2.1vw,32px)}
+body.tv .wrap{max-width:1700px}
+body.tv .mark{font-size:clamp(40px,6vw,84px);margin:0}
+body.tv .sub1,body.tv .meta,body.tv .foot{display:none}
+body.tv .hero{padding-top:10px;padding-bottom:8px}
+body.tv th,body.tv td{padding:.55em .4em}
+body.tv th{font-size:.62em}
+body.tv .pts{font-size:1.25em}
+body.tv .sc{font-size:1.4em}
+body.tv .sub,body.tv .actions{display:none}
+body.tv .grid2{grid-template-columns:repeat(2,1fr)}
+.tvbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;color:var(--muted);font-size:.7em}
+.tvbar b{color:var(--ink)}
+/* ---------- 축구 전용 ---------- */
+:root{--t1:#E9232B;--t2:#2A52A8}
+@media (prefers-color-scheme: dark){:root{--t1:#FF6B5E;--t2:#7FA6FF}}
+.badge{display:inline-block;margin-top:8px;font-family:var(--f-mark);letter-spacing:.14em;font-size:13px;padding:3px 12px;background:var(--navy);color:#fff}
+@media (prefers-color-scheme: dark){.badge{color:var(--bg)}}
+nav a.ext{margin-left:auto;color:var(--royal)}
+.sb{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--red);padding:16px}
+.sb-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.sb-top b{color:var(--ink)}
+.sb-main{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;text-align:center;margin:14px 0 8px}
+.sb-tm{min-width:0}
+.sb-tm b{display:block;font-size:clamp(18px,4.6vw,30px);font-weight:900;overflow-wrap:anywhere;color:var(--tc);line-height:1.2}
+.sb-tm small{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.sb-pts{font-family:var(--f-display);font-size:clamp(46px,12vw,88px);line-height:1;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sb-pts small{display:block;font-family:var(--f-body);font-size:12px;color:var(--muted);letter-spacing:.3em;margin-top:8px}
+.sb-sub{text-align:center;font-size:14px;color:var(--muted)}
+.sb-sub b{color:var(--ink);font-variant-numeric:tabular-nums}
+.res{margin-top:14px;padding:12px;text-align:center;font-weight:900;font-size:19px}
+.res.win{background:linear-gradient(90deg,#F2C94C,#FFE9A0);color:#0E2356}
+.res.wait{background:var(--bg);color:var(--muted);font-weight:700;font-size:14px;border:1px dashed var(--line)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:16px}
+.pc{background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--line);padding:12px}
+.pc.live{border-top-color:var(--live)} .pc.done{border-top-color:var(--ok)}
+.pc h3{margin:0 0 8px;font-size:15px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pc h3 small{font-size:12px;color:var(--muted);font-weight:500}
+.pc .row .tn small{color:var(--muted);font-weight:400;font-size:12px;margin-left:4px}
+.pc .pt{margin-top:8px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:6px}
+.pc .pt b{color:var(--royal)}
+.live-t{color:var(--live);font-weight:700}
+.rule-n{margin-top:12px}
+.tcols{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media (max-width:760px){.tcols{grid-template-columns:1fr}}
+.tcol{min-width:0}
+.thd{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--tc);padding:12px 14px}
+.thd h2{margin:0;font-size:22px;color:var(--tc);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.thd h2 small{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0}
+.thd p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);padding:3px 9px;font-size:13px;background:var(--bg)}
+.chip b{font-family:var(--f-mark);font-weight:400;color:var(--royal);margin-right:5px;letter-spacing:.03em}
+.tcol .ro-c{margin-top:10px;border-top-color:var(--tc)}
+.tcol .ro-c .cd{color:var(--tc);font-size:20px}
+.fc{font-size:11px;color:var(--muted);margin-left:5px;font-weight:500}
+.fx-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;text-align:center;margin-top:clamp(24px,4vw,40px);padding:clamp(16px,3vw,26px) 0;border-top:2px solid rgba(255,255,255,.85);border-bottom:1px solid rgba(255,255,255,.3)}
+.fx-vs .t{font-size:clamp(22px,5vw,40px);font-weight:900;line-height:1.2;overflow-wrap:anywhere}
+.fx-vs .t small{display:block;font-size:12px;font-weight:500;color:#BFD3F5;letter-spacing:.08em;margin-top:6px}
+.fx-vs .t.l{opacity:.5}
+.fx-vs .v{font-family:var(--f-mark);font-size:clamp(20px,4vw,30px);color:#9DB8E8;letter-spacing:.2em}
+.fx-vs .v.s{color:#fff;letter-spacing:0;font-size:clamp(34px,7vw,56px)}
+.fx-vs .v small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.3em;color:#BFD3F5}
+.fx-win{text-align:center;margin-top:14px}
+.fx-win span{display:inline-block;padding:5px 14px;border:2px solid #FFD76A;color:#FFD76A;font-weight:900;font-size:15px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-in">
+  <div class="sub1" id="sub1">축구산업아카데미 26기</div>
+  <div class="mark" aria-label="GOALYMPUS"><span class="g">GOAL</span><span class="y">YMPUS</span></div>
+  <div class="rule"><i></i><b id="ttl">핏투게더 EPTS 장비 실습</b><i></i></div>
+  <div class="badge">SOCCER · 11 VS 11 · 3 PERIODS</div>
+  <div class="meta" id="meta"></div>
+  <div class="conn"><span class="dot" id="dot"></span><span id="connt">연결 중</span></div>
+</div></header>
+<div class="wrap">
+  <nav id="nav" aria-label="화면"></nav>
+  <div id="notice"></div>
+  <main id="app"></main>
+</div>
+<footer class="foot"><div class="foot-in" id="foot"></div></footer>
+<div class="toast" id="toast" hidden></div>
+<script>
+(function(){
+'use strict';
+/* 축구 페이지 (풋살 index.html과 별도).
+   - 명단·행사 정보: 풋살과 같은 시트의 '공개데이터' 탭 (roster, title, date, hours, place, subtitle)
+   - 축구 전용 값: 같은 시트의 '축구데이터' 탭. 첫 칸이 sport, 둘째 칸이 soccer 인 행이 있어야 읽는다.
+     (구글은 없는 탭 이름을 요청하면 첫 번째 탭을 돌려주므로, 이 표시로 진짜 축구 탭인지 확인한다.)
+   - '축구데이터' 탭이 없으면 기본값(A조 vs B조, 스쿼드 자동 배정, 20분 × 3피리어드)으로 보여 준다. */
+var SHEET_ID='1I1qpUYfQyXWZH0z3nBtOJCD5YWK5EQpQvlE47NLq9e0';
+var POLL_MS=10000;
+var q=new URLSearchParams(location.search);
+if(q.get('id'))SHEET_ID=q.get('id');
+var FUTSAL=['A1','A2','A3','A4','B1','B2','B3','B4'];
+var SIDES=['T1','T2'],PN=3;
+var TC={T1:'var(--t1)',T2:'var(--t2)'},TCP={T1:'#FF4B50',T2:'#8FBBFF'};
+var FONT='"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+var MARK='"Anton","Impact","Arial Black","Haettenschweiler",sans-serif';
+var HOST='한국프로축구연맹 교육지원팀',PARTNER='대한축구협회, 핏투게더';
+var DEF_TEAMS={T1:{name:'TEAM A',leader:'',codes:['A1','A2','A3','A4']},T2:{name:'TEAM B',leader:'',codes:['B1','B2','B3','B4']}};
+var cfg={title:'핏투게더 EPTS 장비 실습',subtitle:'축구산업아카데미 26기 · 대학생 마케터 DAY',date:'2026.11.14 (토)',hours:'16:30 ~ 19:00',place:'천안 코리아풋볼파크',
+  periodMin:20,starts:['17:15','17:40','18:05'],announce:'18:30',winPts:3,drawPts:1,teams:JSON.parse(JSON.stringify(DEF_TEAMS))};
+var FT={},ROSTER={},SQ={T1:null,T2:null},PER={},PK=null,soccerTab=false,LOG=[];
+var tab=(location.hash||'#score').slice(1);
+var live=false,gotData=false,lastAt=0,lastChangeAt=0,failCount=0,errMsg='';
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function p2(n){return String(n).padStart(2,'0');}
+function clock(t){var d=new Date(t);return p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());}
+function hhmm(s){s=String(s||'').trim();var m=s.match(/(\d{1,2}):(\d{2})/);return m?p2(m[1])+':'+m[2]:'';}
+function mins(s){var p=String(s).split(':');return +p[0]*60+ +p[1];}
+function fmt(x){x=((x%1440)+1440)%1440;return p2(Math.floor(x/60))+':'+p2(x%60);}
+function num(s){s=String(s==null?'':s).trim();return s!==''&&!isNaN(+s)?+s:null;}
+function splitNames(s){return String(s||'').split('|').map(function(x){x=x.trim();var mg=/^[*★]/.test(x);return {n:x.replace(/^[*★]\s*/,''),m:mg};}).filter(function(o){return o.n;});}
+
+/* ---------- 시트 읽기 ---------- */
+function parseCSV(t){
+  var rows=[],row=[],f='',i=0,inq=false,c;
+  while(i<t.length){c=t[i];
+    if(inq){if(c==='"'){if(t[i+1]==='"'){f+='"';i++;}else inq=false;}else f+=c;}
+    else if(c==='"')inq=true;
+    else if(c===','){row.push(f);f='';}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f='';}
+    else f+=c;
+    i++;}
+  if(f!==''||row.length){row.push(f);rows.push(row);}
+  return rows;}
+function sheetURL(name,range){
+  return 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&headers=0&sheet='+encodeURIComponent(name)+'&range='+range+'&t='+Date.now();}
+async function getSheet(name,range){
+  var r=await fetch(sheetURL(name,range),{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  var t=await r.text();
+  if(/^\s*<(!doctype|html)/i.test(t))throw new Error('로그인 필요(공유 설정 확인)');
+  return parseCSV(t);}
+async function refresh(){
+  try{
+    var res=await Promise.all([getSheet('공개데이터','A1:E60'),getSheet('축구데이터','A1:E80').catch(function(){return null;})]);
+    var pub=res[0],soc=res[1],K={},RO={},F={};
+    pub.forEach(function(r){var k=(r[0]||'').trim();
+      if(k==='roster'){var c=(r[1]||'').trim();if(FUTSAL.indexOf(c)>=0)RO[c]=splitNames(r[2]);}
+      else if(k==='team'){var c2=(r[1]||'').trim();if(FUTSAL.indexOf(c2)>=0)F[c2]={name:(r[2]||'').trim(),size:+(r[4]||0)||0};}
+      else if(k)K[k]=(r[1]||'').trim();});
+    if(!pub.length)throw new Error('데이터 없음');
+    ['title','subtitle','date','hours','place'].forEach(function(k){if(K[k])cfg[k]=K[k];});
+    /* 축구데이터 탭 */
+    var isSoc=!!(soc&&soc.some(function(r){return (r[0]||'').trim()==='sport'&&(r[1]||'').trim().toLowerCase()==='soccer';}));
+    var S={},P={},T=JSON.parse(JSON.stringify(DEF_TEAMS)),SQn={T1:null,T2:null},pk=null;
+    if(isSoc){
+      soc.forEach(function(r){var k=(r[0]||'').trim();
+        if(k==='team'){var s=(r[1]||'').trim();if(SIDES.indexOf(s)<0)return;
+          var codes=String(r[4]||'').split('|').map(function(x){return x.trim().toUpperCase();}).filter(function(x){return FUTSAL.indexOf(x)>=0;});
+          T[s]={name:(r[2]||'').trim()||DEF_TEAMS[s].name,leader:(r[3]||'').trim(),codes:codes.length?codes:DEF_TEAMS[s].codes};}
+        else if(k==='squad'){var s2=(r[1]||'').trim(),n=+r[2];if(SIDES.indexOf(s2)<0||!(n>=1&&n<=PN))return;
+          var L=splitNames(r[3]);if(!L.length)return;SQn[s2]=SQn[s2]||[[],[],[]];SQn[s2][n-1]=L;}
+        else if(k==='period'){var pn=+r[1];if(pn>=1&&pn<=PN)P['p'+pn]={h:num(r[2]),a:num(r[3]),s:(r[4]||'').trim()};}
+        else if(k==='pk'){var ph=num(r[1]),pa=num(r[2]);if(ph!=null&&pa!=null)pk={h:ph,a:pa};}
+        else if(k)S[k]=(r[1]||'').trim();});
+      var st=[1,2,3].map(function(i){return hhmm(S['start'+i]);});
+      if(st.every(Boolean))cfg.starts=st;
+      if(+S.periodMin>0)cfg.periodMin=+S.periodMin;
+      if(hhmm(S.announce))cfg.announce=hhmm(S.announce);
+      if(+S.winPts>=0&&S.winPts!=='')cfg.winPts=+S.winPts;
+      if(+S.drawPts>=0&&S.drawPts!=='')cfg.drawPts=+S.drawPts;
+      ['title','date','hours','place'].forEach(function(k){if(S[k])cfg[k]=S[k];});}
+    if(gotData)diffLog(PER,P,PK,pk);
+    cfg.teams=T;ROSTER=RO;FT=F;SQ=SQn;PER=P;PK=pk;soccerTab=isSoc;
+    live=true;gotData=true;lastAt=Date.now();failCount=0;errMsg='';
+  }catch(e){live=false;failCount++;errMsg=(e&&e.message)||'연결 실패';}
+  render();}
+function diffLog(o,c,opk,cpk){
+  var t=Date.now(),n=LOG.length;
+  for(var p=1;p<=PN;p++){var a=o['p'+p]||{},b=c['p'+p]||{},ad=a.s==='완료',bd=b.s==='완료',L=p+'피리어드 ';
+    if(bd&&!ad)LOG.unshift({t:t,msg:L+tname('T1')+' '+b.h+' : '+b.a+' '+tname('T2')+' 완료'});
+    else if(bd&&ad&&(a.h!==b.h||a.a!==b.a))LOG.unshift({t:t,msg:L+a.h+':'+a.a+' → '+b.h+':'+b.a+' 정정'});
+    else if(!bd&&ad)LOG.unshift({t:t,msg:L+'완료 취소됨 (상태 칸 변경)'});
+    else if(b.s==='진행'&&a.s!=='진행')LOG.unshift({t:t,msg:L+'시작'});}
+  if(cpk&&(!opk||opk.h!==cpk.h||opk.a!==cpk.a))LOG.unshift({t:t,msg:'승부차기 '+cpk.h+' : '+cpk.a+' 반영'});
+  if(LOG.length>n)lastChangeAt=t;
+  LOG=LOG.slice(0,30);}
+
+/* ---------- 팀 · 스쿼드 ---------- */
+function tname(s){return cfg.teams[s].name;}
+function futsalName(c){var f=FT[c];return f&&f.name&&f.name!==c?f.name:'';}
+function members(s){var L=[];cfg.teams[s].codes.forEach(function(c){(ROSTER[c]||[]).forEach(function(o){L.push({n:o.n,m:o.m,c:c});});});return L;}
+/* 시트에 스쿼드가 있으면 그대로, 없으면 풋살 팀 순서대로 이어 붙여 3개로 나눈다(앞 스쿼드부터 1명씩 더). */
+function squads(s){
+  var M=members(s),byName={};M.forEach(function(o){byName[o.n]=o;});
+  if(SQ[s]){var seen={};
+    var sq=SQ[s].map(function(list){return list.map(function(o){var b=byName[o.n];seen[o.n]=(seen[o.n]||0)+1;return {n:o.n,m:o.m||(b&&b.m),c:b?b.c:''};});});
+    return {auto:false,sq:sq,un:M.filter(function(o){return !seen[o.n];}),dup:Object.keys(seen).filter(function(k){return seen[k]>1;}),out:[].concat.apply([],sq).filter(function(o){return !o.c;})};}
+  var n=M.length,base=Math.floor(n/PN),ex=n%PN,sq=[],i=0;
+  for(var k=0;k<PN;k++){var sz=base+(k<ex?1:0);sq.push(M.slice(i,i+sz));i+=sz;}
+  return {auto:true,sq:sq,un:[],dup:[],out:[]};}
+
+/* ---------- 피리어드 · 승점 ---------- */
+function timeOf(p){var s=cfg.starts[p-1]||'00:00';return {s:s,e:fmt(mins(s)+ +cfg.periodMin)};}
+function periods(){var L=[];
+  for(var p=1;p<=PN;p++){var r=PER['p'+p]||{},both=r.h!=null&&r.a!=null,tm=timeOf(p);
+    var done=r.s==='완료'&&both,lv=!done&&r.s==='진행';
+    L.push({p:p,s:tm.s,e:tm.e,h:both?r.h:null,a:both?r.a:null,raw:r,done:done,live:lv,
+      err:(r.s==='완료'&&!both)||((r.h==null)!==(r.a==null)),pend:both&&!done&&!lv});}
+  return L;}
+function tally(ps){
+  var t={pts:[0,0],gf:[0,0],w:[0,0],d:0,done:0};
+  ps.forEach(function(x){if(!x.done)return;t.done++;t.gf[0]+=x.h;t.gf[1]+=x.a;
+    if(x.h>x.a){t.pts[0]+=cfg.winPts;t.w[0]++;x.gain=[cfg.winPts,0];}
+    else if(x.h<x.a){t.pts[1]+=cfg.winPts;t.w[1]++;x.gain=[0,cfg.winPts];}
+    else{t.pts[0]+=cfg.drawPts;t.pts[1]+=cfg.drawPts;t.d++;x.gain=[cfg.drawPts,cfg.drawPts];}});
+  var rem=PN-t.done,lead=t.pts[0]-t.pts[1],maxGain=rem*cfg.winPts;
+  t.winner=null;t.by='';t.needPK=false;
+  if(rem===0){
+    if(lead!==0){t.winner=lead>0?'T1':'T2';t.by='승점';}
+    else if(t.gf[0]!==t.gf[1]){t.winner=t.gf[0]>t.gf[1]?'T1':'T2';t.by='총득점';}
+    else{t.needPK=true;if(PK&&PK.h!==PK.a){t.winner=PK.h>PK.a?'T1':'T2';t.by='승부차기';}}}
+  else if(Math.abs(lead)>maxGain){t.winner=lead>0?'T1':'T2';t.by='조기 확정';}
+  return t;}
+
+/* ---------- 화면 ---------- */
+function vScore(){
+  var ps=periods(),t=tally(ps),lv=ps.filter(function(x){return x.live;})[0];
+  var stt=t.winner&&t.by!=='조기 확정'?'경기 종료':lv?'<span class="live-t">● '+lv.p+'피리어드 진행 중</span>':t.done?(t.done+'피리어드 종료'):'경기 전';
+  var h='<section class="sb"><div class="sb-top"><span>'+stt+'</span><span>완료 <b>'+t.done+' / '+PN+'</b> 피리어드 · 결과 발표 <b>'+esc(cfg.announce)+'</b></span></div>';
+  h+='<div class="sb-main">'+SIDES.map(function(s,i){var x='<div class="sb-tm" style="--tc:'+TC[s]+'"><b>'+esc(tname(s))+'</b><small>'+esc(cfg.teams[s].codes.join(' · '))+' · '+members(s).length+'명</small></div>';
+      return i===0?x+'<div class="sb-pts">'+t.pts[0]+' : '+t.pts[1]+'<small>승점</small></div>':x;}).join('')+'</div>';
+  h+='<div class="sb-sub">총득점 <b>'+t.gf[0]+' : '+t.gf[1]+'</b> · 피리어드 승 <b>'+t.w[0]+'</b> 무 <b>'+t.d+'</b> 패 <b>'+t.w[1]+'</b> ('+esc(tname('T1'))+' 기준)'+(PK?' · 승부차기 <b>'+PK.h+' : '+PK.a+'</b>':'')+'</div>';
+  if(t.winner)h+='<div class="res win">'+(t.by==='조기 확정'?'승리 확정 · ':'승리 · ')+esc(tname(t.winner))+' <small style="font-weight:700">('+t.by+(t.by==='조기 확정'?': 남은 피리어드와 관계없이 확정':'')+')</small></div>';
+  else if(t.needPK)h+='<div class="res wait">승점과 총득점이 모두 같습니다. 승부차기로 승리 팀을 정합니다.</div>';
+  h+='</section><div class="pgrid">'+ps.map(function(x){
+    var cls=x.done?' done':x.live?' live':'',st=x.done?'<span class="done-t">종료</span>':x.live?'<span class="live-t">진행 중</span>':'<span class="wait-t">대기</span>';
+    var show=x.h!=null,hw=x.done&&x.h>x.a,aw=x.done&&x.a>x.h;
+    return '<section class="pc'+cls+'"><h3><span>'+x.p+'피리어드</span><small>'+x.s+' ~ '+x.e+' · '+st+'</small></h3>'+
+      '<div class="row"><span class="tn'+(hw?' w':'')+'">'+esc(tname('T1'))+'<small>스쿼드 '+x.p+'</small></span><span class="sc">'+(show?x.h:'')+'</span></div>'+
+      '<div class="row"><span class="tn'+(aw?' w':'')+'">'+esc(tname('T2'))+'<small>스쿼드 '+x.p+'</small></span><span class="sc">'+(show?x.a:'')+'</span></div>'+
+      '<div class="pt">'+(x.done?'승점 <b>'+esc(tname('T1'))+' +'+x.gain[0]+'</b> · <b>'+esc(tname('T2'))+' +'+x.gain[1]+'</b>':x.live?'진행 중 점수는 승점에 아직 반영되지 않습니다':'스쿼드 '+x.p+'끼리 맞붙습니다')+'</div></section>';}).join('')+'</div>';
+  return h+'<p class="sub rule-n">피리어드마다 이기면 승점 '+cfg.winPts+', 비기면 '+cfg.drawPts+', 지면 0입니다. 3피리어드 합계 승점이 높은 팀이 이깁니다. 승점이 같으면 총득점이 많은 팀, 그것도 같으면 승부차기로 정합니다. 종료된 피리어드만 반영됩니다.</p>';}
+
+function vTeams(){
+  var h='<p class="sub">축구는 풋살 팀을 합쳐 2팀으로 진행합니다. 팀마다 3개 스쿼드로 나누고, 스쿼드 번호와 같은 피리어드에 출전합니다. 이름 옆 작은 글씨는 원래 풋살 팀입니다.</p>'+
+    '<p class="mgnote"><span class="mgn">노란색</span> 이름은 풋살 팀 매니저입니다.</p>';
+  var auto=SIDES.some(function(s){return squads(s).auto;});
+  if(auto)h+='<div class="banner">스쿼드가 아직 시트에서 정해지지 않았습니다. 지금은 풋살 팀 순서대로 인원을 3개로 나눈 <b>임시 배정</b>입니다.</div>';
+  h+='<div class="tcols">';
+  SIDES.forEach(function(s){var T=cfg.teams[s],M=members(s),Q=squads(s);
+    h+='<div class="tcol" style="--tc:'+TC[s]+'"><section class="thd"><h2><span>'+esc(T.name)+'</span><small>'+M.length+'명</small></h2>'+
+      (T.leader?'<p>팀장 · '+esc(T.leader)+'</p>':'')+
+      '<div class="chips">'+T.codes.map(function(c){var fn=futsalName(c);return '<span class="chip"><b>'+c+'</b>'+(fn?esc(fn)+' · ':'')+(ROSTER[c]||[]).length+'명</span>';}).join('')+'</div></section>';
+    Q.sq.forEach(function(list,i){var tm=timeOf(i+1);
+      h+='<section class="ro-c"><h3><span class="cd">SQUAD '+(i+1)+'</span><span class="nm">'+(i+1)+'피리어드 · '+tm.s+'</span><small>'+list.length+'명</small></h3>'+
+        (list.length?'<ul>'+list.map(function(o){var fc=o.c?'<span class="fc">'+o.c+'</span>':'';
+          return '<li'+(o.m?' class="mg"':'')+'>'+(o.m?'<span class="mgn">'+esc(o.n)+'</span>'+fc:esc(o.n)+fc)+'</li>';}).join('')+'</ul>':'<p class="sub">명단 준비 중</p>')+'</section>';});
+    if(Q.un.length)h+='<section class="ro-c"><h3><span class="cd">미배정</span><span class="nm"></span><small>'+Q.un.length+'명</small></h3><ul>'+Q.un.map(function(o){return '<li>'+esc(o.n)+'<span class="fc">'+o.c+'</span></li>';}).join('')+'</ul></section>';
+    h+='</div>';});
+  return h+'</div>';}
+
+function program(){
+  var hm=String(cfg.hours).match(/(\d{1,2}:\d{2})\s*~\s*(\d{1,2}:\d{2})/),ps=hm?hhmm(hm[1]):'16:30',pe=hm?hhmm(hm[2]):'19:00';
+  var L=[{t:ps+'~'+cfg.starts[0],l:'장비 배부·착용, 팀·스쿼드 확인, 준비운동',k:'pre'}];
+  for(var p=1;p<=PN;p++){var tm=timeOf(p);L.push({t:tm.s+'~'+tm.e,l:p+'피리어드 · 스쿼드 '+p+' 출전',k:'rd'});
+    if(p<PN)L.push({t:tm.e+'~'+cfg.starts[p],l:'스쿼드 교대',k:'rest'});}
+  var e3=timeOf(PN).e;
+  if(mins(cfg.announce)>mins(e3))L.push({t:e3+'~'+cfg.announce,l:'승부차기(필요 시)·결과 집계',k:'rest'});
+  L.push({t:cfg.announce+'~'+pe,l:'결과 발표·장비 반납',k:'fn'});
+  return L;}
+function vSchedule(){
+  var ps=periods(),t=tally(ps),fin=t.winner&&t.by!=='조기 확정';
+  var h='<p class="sub">경기 결과가 들어오면 점수도 함께 표시됩니다.</p><div class="actions"><button class="primary" data-act="png">일정 이미지(PNG)로 저장</button></div>';
+  h+='<div class="fx"><div class="fx-top"><div><h2>MATCH DAY</h2><div class="fx-kr">'+esc(cfg.title)+' · 축구 11 vs 11 · 3피리어드 승점제</div></div><div class="fx-logo"><span class="g">GOAL</span><span class="y">YMPUS</span></div></div>';
+  h+='<div class="fx-vs">'+SIDES.map(function(s,i){var x='<div class="t'+(fin&&t.winner!==s?' l':'')+'">'+esc(tname(s))+'<small>'+esc(cfg.teams[s].codes.join(' · '))+'</small></div>';
+    return i===0?x+(t.done?'<div class="v s">'+t.pts[0]+' : '+t.pts[1]+'<small>승점</small></div>':'<div class="v">VS</div>'):x;}).join('')+'</div>';
+  if(t.winner)h+='<div class="fx-win"><span>'+(fin?'승리':'승리 확정')+' · '+esc(tname(t.winner))+'</span></div>';
+  h+='<div class="fx-grid">'+ps.map(function(x){var hw=x.done&&x.h>x.a,aw=x.done&&x.a>x.h;
+    return '<section class="fx-b"><h3>'+['1ST','2ND','3RD'][x.p-1]+' PERIOD<small>'+x.s+' – '+x.e+'</small></h3>'+
+      '<div class="fx-r" style="--cc:'+TCP.T1+';grid-template-columns:1fr 44px 1fr"><span class="t h'+(aw?' l':'')+'">'+esc(tname('T1'))+'</span>'+(x.done?'<span class="v s">'+x.h+':'+x.a+'</span>':'<span class="v">VS</span>')+'<span class="t'+(hw?' l':'')+'">'+esc(tname('T2'))+'</span></div>'+
+      '<div class="fx-r" style="grid-template-columns:1fr;text-transform:none"><span class="v" style="text-align:center">SQUAD '+x.p+' vs SQUAD '+x.p+(x.done?' · 승점 +'+x.gain[0]+' / +'+x.gain[1]:'')+'</span></div></section>';}).join('')+'</div>';
+  function tl(x){return '<div class="tl '+x.k+'"><b>'+esc(x.t)+'</b><span>'+esc(x.l)+'</span></div>';}
+  var PG=program(),half=Math.ceil(PG.length/2);
+  h+='<div class="fx-pg"><div>'+PG.slice(0,half).map(tl).join('')+'</div><div>'+PG.slice(half).map(tl).join('')+'</div></div>'+
+    '<div class="fx-note"><span>*승리 3 · 무승부 1 · 패 0 / 승점 동률 시 총득점 → 승부차기 · 경기 시간은 현장 사정에 따라 변경될 수 있습니다</span><span>'+esc(cfg.date)+' · '+esc(cfg.place)+'</span></div></div>';
+  return h;}
+
+/* 총괄 관제 (#monitor) */
+function todayIsEventDay(){var m=cfg.date.match(/(\d{4})\.(\d{1,2})\.(\d{1,2})/);if(!m)return false;var n=new Date();
+  return +m[1]===n.getFullYear()&&+m[2]===n.getMonth()+1&&+m[3]===n.getDate();}
+function vMonitor(){
+  var now=Date.now(),ps=periods(),t=tally(ps),ago=lastAt?Math.round((now-lastAt)/1000):null,chg=lastChangeAt?Math.round((now-lastChangeAt)/1000):null,connOK=live&&ago!=null&&ago<35;
+  var h='<p class="sub">총괄 담당용 화면입니다. 입력이 화면에 제대로 반영되는지 확인합니다. (주소 끝에 #monitor)</p><div class="kpis">';
+  h+='<div class="kpi '+(connOK?'ok':'bad')+'"><small>시트 연결</small><b>'+(connOK?'정상':'확인 필요')+'</b><small>마지막 성공 '+(lastAt?clock(lastAt)+' ('+ago+'초 전)':'-')+(failCount?' · 연속 실패 '+failCount+'회':'')+'</small></div>';
+  h+='<div class="kpi"><small>마지막 점수 반영</small><b>'+(lastChangeAt?clock(lastChangeAt):'아직 없음')+'</b><small>'+(chg!=null?chg+'초 전':'이 화면을 연 뒤 변경 없음')+'</small></div>';
+  h+='<div class="kpi"><small>완료 피리어드</small><b>'+t.done+' / '+PN+'</b><div class="bar"><i style="width:'+Math.round(t.done/PN*100)+'%"></i></div></div></div>';
+  h+='<h2>입력 점검</h2><ul class="chk">';
+  function item(kind,txt){h+='<li class="'+kind+'"><span class="ic">'+(kind==='ok'?'✔':kind==='bad'?'!':'i')+'</span><span>'+txt+'</span></li>';}
+  soccerTab?item('ok','시트의 &lsquo;축구데이터&rsquo; 탭을 읽고 있습니다'):item('bad','&lsquo;축구데이터&rsquo; 탭이 없거나 첫 행에 <b>sport | soccer</b>가 없습니다. 지금은 기본값으로 표시 중입니다');
+  var errs=ps.filter(function(x){return x.err;}),pend=ps.filter(function(x){return x.pend;});
+  errs.length?item('bad','점수가 한쪽만 입력됐거나 점수 없이 &lsquo;완료&rsquo;인 피리어드: '+errs.map(function(x){return x.p+'P';}).join(', ')):item('ok','점수 입력 오류 없음');
+  if(pend.length)item('bad','점수는 있는데 상태가 &lsquo;완료&rsquo;가 아닌 피리어드: '+pend.map(function(x){return x.p+'P';}).join(', ')+' (상태 칸에 완료를 넣어야 승점에 반영)');
+  SIDES.forEach(function(s){var Q=squads(s),nm=esc(tname(s));
+    if(Q.auto)item('info',nm+' 스쿼드 임시 자동 배정 ('+Q.sq.map(function(l){return l.length;}).join(' / ')+'명)');
+    else item('ok',nm+' 스쿼드 시트 지정 ('+Q.sq.map(function(l){return l.length;}).join(' / ')+'명)');
+    var sm=Q.sq.map(function(l,i){return l.length<11?'스쿼드 '+(i+1)+' '+l.length+'명':'';}).filter(Boolean);
+    if(sm.length)item('bad',nm+' 11명 미만: '+sm.join(', '));
+    if(Q.un.length)item('bad',nm+' 스쿼드 미배정 '+Q.un.length+'명: '+Q.un.map(function(o){return esc(o.n);}).join(', '));
+    if(Q.dup.length)item('bad',nm+' 두 스쿼드 이상에 중복: '+Q.dup.map(esc).join(', '));
+    if(Q.out.length)item('info',nm+' 풋살 명단에 없는 이름: '+Q.out.map(function(o){return esc(o.n);}).join(', ')+' (오타 확인)');});
+  var codesAll=cfg.teams.T1.codes.concat(cfg.teams.T2.codes),miss=FUTSAL.filter(function(c){return codesAll.indexOf(c)<0;}),both=cfg.teams.T1.codes.filter(function(c){return cfg.teams.T2.codes.indexOf(c)>=0;});
+  if(miss.length)item('bad','어느 팀에도 들어가지 않은 풋살 팀: '+miss.join(', '));
+  if(both.length)item('bad','두 팀에 모두 들어간 풋살 팀: '+both.join(', '));
+  if(!miss.length&&!both.length)item('ok','풋살 8팀 → 축구 2팀 구성 정상 ('+members('T1').length+' : '+members('T2').length+'명)');
+  if(todayIsEventDay()){var nowm=new Date().getHours()*60+new Date().getMinutes(),late=ps.filter(function(x){return !x.done&&nowm>mins(x.e)+3;});
+    late.length?item('bad','종료 시각이 지났는데 결과가 없는 피리어드: '+late.map(function(x){return x.p+'P';}).join(', ')):item('ok','지연된 피리어드 없음');}
+  else item('info','오늘은 행사일('+esc(cfg.date)+')이 아니라 지연 점검을 건너뜁니다');
+  if(t.needPK&&!t.winner)item('bad','승점·총득점 동률입니다. 축구데이터 탭 <b>pk</b> 행에 승부차기 점수를 넣으세요');
+  if(t.winner)item('ok','승리 팀: '+esc(tname(t.winner))+' ('+t.by+')');
+  h+='</ul><h2>최근 반영 기록</h2>';
+  h+=LOG.length?'<ul class="chk log">'+LOG.slice(0,12).map(function(l){return '<li class="info"><span class="ic">·</span><span>'+clock(l.t)+' &nbsp;'+esc(l.msg)+'</span></li>';}).join('')+'</ul>':'<p class="sub">이 화면을 연 뒤 새로 입력된 점수가 여기에 쌓입니다.</p>';
+  h+='<h2>바로가기</h2><div class="links"><a href="https://docs.google.com/spreadsheets/d/'+esc(SHEET_ID)+'/edit" target="_blank" rel="noopener">입력 시트 열기</a><a href="#score">참가자 스코어 화면</a><a href="index.html">풋살 페이지</a></div>';
+  return h;}
+
+/* ---------- 일정 포스터 (PNG 저장) ---------- */
+function clip(s,n){s=String(s);return s.length>n?s.slice(0,n-1)+'…':s;}
+function posterSVG(){
+  var ps=periods(),t=tally(ps),fin=t.winner&&t.by!=='조기 확정',W=1080,M=48,G=36,CWd=(W-2*M-2*G)/3,Y0=300,Y1=Y0+250,PG=program(),half=Math.ceil(PG.length/2),colW=(W-2*M-G)/2,RHp=46,yP=Y1+200,H=yP+half*RHp+170,out='';
+  function T(x,y,txt,o){o=o||{};return '<text x="'+x+'" y="'+y+'" font-family=\''+(o.m?MARK:FONT)+'\' font-size="'+(o.s||18)+'" font-weight="'+(o.w||400)+'" fill="'+(o.f||'#FFFFFF')+'" text-anchor="'+(o.a||'start')+'"'+(o.ls?' letter-spacing="'+o.ls+'"':'')+(o.op?' opacity="'+o.op+'"':'')+'>'+esc(txt)+'</text>';}
+  out+='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(cfg.title)+' 축구 일정">';
+  out+='<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0E2356"/><stop offset=".55" stop-color="#173A86"/><stop offset="1" stop-color="#2A52A8"/></linearGradient>'+
+    '<radialGradient id="b1" cx=".85" cy="0" r=".6"><stop offset="0" stop-color="#6FAEEF" stop-opacity=".6"/><stop offset="1" stop-color="#6FAEEF" stop-opacity="0"/></radialGradient></defs>';
+  out+='<rect width="'+W+'" height="'+H+'" fill="url(#bg)"/><rect width="'+W+'" height="'+H+'" fill="url(#b1)"/>';
+  out+=T(M,190,'MATCH DAY',{m:1,s:104,ls:'2'})+T(M+4,240,cfg.title+' · 축구 11 vs 11 · 3피리어드 승점제',{s:21,w:500,f:'#CFE0FA',ls:'3'});
+  out+=T(W-M,130,cfg.subtitle.split('·')[0].trim(),{s:15,w:500,f:'#CFE0FA',a:'end',ls:'2'});
+  out+='<g transform="translate('+(W-M)+',190) skewX(-8)"><text x="0" y="0" font-family=\''+MARK+'\' font-size="52" text-anchor="end"><tspan fill="#FF4B50">GOAL</tspan><tspan fill="#FFFFFF">YMPUS</tspan></text></g>';
+  /* 팀 대결 */
+  out+='<rect x="'+M+'" y="'+Y0+'" width="'+(W-2*M)+'" height="2.5" fill="#FFFFFF"/>';
+  var cl=M+(W-2*M)/4,cr=W-M-(W-2*M)/4,cm=W/2;
+  out+=T(cl,Y0+100,clip(tname('T1'),10),{s:44,w:900,a:'middle',op:fin&&t.winner!=='T1'?.5:1})+T(cl,Y0+140,cfg.teams.T1.codes.join(' · '),{s:16,f:'#BFD3F5',a:'middle',ls:'2'});
+  out+=T(cr,Y0+100,clip(tname('T2'),10),{s:44,w:900,a:'middle',op:fin&&t.winner!=='T2'?.5:1})+T(cr,Y0+140,cfg.teams.T2.codes.join(' · '),{s:16,f:'#BFD3F5',a:'middle',ls:'2'});
+  out+=t.done?T(cm,Y0+110,t.pts[0]+' : '+t.pts[1],{m:1,s:64,a:'middle'})+T(cm,Y0+140,'승점',{s:13,f:'#BFD3F5',a:'middle',ls:'4'}):T(cm,Y0+108,'VS',{m:1,s:40,f:'#9DB8E8',a:'middle',ls:'6'});
+  if(t.winner)out+='<rect x="'+(cm-130)+'" y="'+(Y0+170)+'" width="260" height="40" fill="none" stroke="#FFD76A" stroke-width="2.5"/>'+T(cm,Y0+197,(fin?'승리':'승리 확정')+' · '+clip(tname(t.winner),9),{s:18,w:900,f:'#FFD76A',a:'middle'});
+  /* 피리어드 3블록 */
+  ps.forEach(function(x,i){var px=M+i*(CWd+G),cx=px+CWd/2;
+    out+=T(px,Y1+30,['1ST','2ND','3RD'][i]+' PERIOD',{m:1,s:30,ls:'1'})+T(px+CWd,Y1+28,x.s+' – '+x.e,{s:13,f:'#BFD3F5',a:'end'})+'<rect x="'+px+'" y="'+(Y1+44)+'" width="'+CWd+'" height="2.5" fill="#FFFFFF"/>';
+    out+=x.done?T(cx,Y1+108,x.h+' : '+x.a,{s:40,w:900,a:'middle'}):T(cx,Y1+102,'VS',{s:18,f:'#9DB8E8',a:'middle',ls:'6'});
+    out+=T(cx,Y1+144,'SQUAD '+x.p+' vs SQUAD '+x.p,{s:14,f:'#BFD3F5',a:'middle',ls:'2'});});
+  /* 프로그램 */
+  out+='<rect x="'+M+'" y="'+yP+'" width="'+(W-2*M)+'" height="2.5" fill="#FFFFFF"/>';
+  PG.forEach(function(x,i){var c=i<half?0:1,px=M+c*(colW+G),y=yP+14+(i-(c?half:0))*RHp,gold=x.k==='fn',dim=x.k==='rest';
+    out+=T(px,y+26,x.t,{m:1,s:22,f:gold?'#FFD76A':(dim?'#9DB8E8':'#FFFFFF')})+T(px+158,y+26,clip(x.l,22),{s:dim?13:15,w:gold?700:500,f:gold?'#FFD76A':(dim?'#9DB8E8':'#E6EEFC')});
+    out+='<rect x="'+px+'" y="'+(y+RHp-8)+'" width="'+colW+'" height="1" fill="#FFFFFF" opacity=".15"/>';});
+  var yN=yP+14+half*RHp+8;
+  out+='<rect x="'+M+'" y="'+yN+'" width="'+(W-2*M)+'" height="1" fill="#FFFFFF" opacity=".35"/>';
+  out+=T(M,yN+34,'*피리어드 승 3 · 무 1 · 패 0 / 승점 동률 시 총득점 → 승부차기',{s:14,f:'#BFD3F5'});
+  out+=T(M,yN+78,'일정',{s:12,w:900,f:'#FFD76A',ls:'3'})+T(M+54,yN+78,cfg.date+'  '+cfg.hours,{s:16,w:700})+T(M+380,yN+78,'장소',{s:12,w:900,f:'#FFD76A',ls:'3'})+T(M+434,yN+78,cfg.place,{s:16,w:700});
+  out+=T(M,yN+106,'주최',{s:12,w:900,f:'#FFD76A',ls:'3'})+T(M+54,yN+106,HOST,{s:14,f:'#CFE0FA'})+T(M+380,yN+106,'협력',{s:12,w:900,f:'#FFD76A',ls:'3'})+T(M+434,yN+106,PARTNER,{s:14,f:'#CFE0FA'});
+  return out+'</svg>';}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true;},2600);}
+async function savePNG(){
+  try{var svg=posterSVG(),img=new Image();
+    await new Promise(function(ok,no){img.onload=ok;img.onerror=no;img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);});
+    var vb=svg.match(/viewBox="0 0 (\d+) (\d+)"/),w=+vb[1],h=+vb[2],c=document.createElement('canvas');c.width=w*2;c.height=h*2;
+    var x=c.getContext('2d');x.scale(2,2);x.drawImage(img,0,0,w,h);
+    var blob=await new Promise(function(r){c.toBlob(r,'image/png');}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='축구_일정.png';document.body.appendChild(a);a.click();a.remove();
+  }catch(e){toast('이미지 저장에 실패했습니다.');}}
+
+function render(){
+  document.getElementById('ttl').textContent=cfg.title;
+  document.getElementById('sub1').textContent=cfg.subtitle.split('·')[0].trim();
+  document.getElementById('meta').textContent=cfg.date+' '+cfg.hours+'  |  '+cfg.place+(cfg.subtitle.indexOf('·')>0?'  |  '+cfg.subtitle.split('·').slice(1).join('·').trim():'');
+  document.getElementById('foot').innerHTML='<div><b>일정</b><span>'+esc(cfg.date)+'</span><small>'+esc(cfg.hours)+'</small></div><div><b>장소</b><span>'+esc(cfg.place)+'</span></div><div><b>주최</b><small>'+esc(HOST)+'</small><b style="margin-top:6px">협력</b><small>'+esc(PARTNER)+'</small></div>';
+  document.title='GOALYMPUS 축구 · '+cfg.title;
+  var T=[['score','스코어'],['teams','팀 구성'],['schedule','일정']];
+  if(tab==='monitor')T.push(['monitor','관제']);
+  else if(!T.some(function(x){return x[0]===tab;}))tab='score';
+  document.getElementById('nav').innerHTML=T.map(function(x){return '<a href="#'+x[0]+'"'+(x[0]===tab?' aria-current="page"':'')+'>'+x[1]+'</a>';}).join('')+'<a class="ext" href="index.html">풋살 페이지 →</a>';
+  var dot=document.getElementById('dot'),ct=document.getElementById('connt');
+  dot.className='dot'+(live?' on':' bad');
+  ct.textContent=live?('실시간 연결됨 · '+clock(lastAt)):(gotData?'연결이 끊겼습니다 · 마지막 화면':'연결 중…');
+  document.getElementById('notice').innerHTML=(!live&&location.protocol==='file:')?'<div class="banner">이 파일을 더블클릭으로 직접 열면 구글 보안 때문에 시트를 읽을 수 없습니다. 인터넷 주소(GitHub Pages)로 여세요.</div>':((!live&&errMsg)?'<div class="banner">시트를 불러오지 못했습니다 ('+esc(errMsg)+'). 잠시 뒤 자동으로 다시 시도합니다.</div>':'');
+  var h='';
+  if(tab==='teams')h=vTeams();else if(tab==='schedule')h=vSchedule();else if(tab==='monitor')h=vMonitor();else h=vScore();
+  document.getElementById('app').innerHTML=h;}
+window.addEventListener('hashchange',function(){tab=location.hash.slice(1)||'score';render();window.scrollTo(0,0);});
+document.getElementById('app').addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b&&b.dataset.act==='png')savePNG();});
+render();refresh();setInterval(refresh,POLL_MS);
+setInterval(function(){if(tab==='monitor')render();},1000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh();});
+})();
+</script>
+</body>
+</html>
