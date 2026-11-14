@@ -55,6 +55,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 nav{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);margin:0 0 16px;position:sticky;top:0;background:var(--bg);z-index:5}
 nav a{padding:12px 16px;color:var(--muted);text-decoration:none;font-weight:700;white-space:nowrap;border-bottom:4px solid transparent;margin-bottom:-2px}
 nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--red)}
+nav a.ext{margin-left:auto;color:var(--royal)}
+@media (max-width:480px){nav a{padding:12px 10px}}
 a:focus-visible,button:focus-visible{outline:3px solid var(--royal);outline-offset:2px}
 .banner{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--warn);padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--muted)}
 .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
@@ -523,7 +525,7 @@ function render(){
   if(tab==='monitor')T.push(['monitor','관제']);
   else if(!T.some(function(x){return x[0]===tab;}))tab='standings';
   document.body.classList.toggle('tv',tab==='tv');
-  document.getElementById('nav').innerHTML=T.map(function(x){return '<a href="#'+x[0]+'"'+(x[0]===tab?' aria-current="page"':'')+'>'+x[1]+'</a>';}).join('');
+  document.getElementById('nav').innerHTML=T.map(function(x){return '<a href="#'+x[0]+'"'+(x[0]===tab?' aria-current="page"':'')+'>'+x[1]+'</a>';}).join('')+'<a class="ext" href="soccer.html">축구 →</a>';
   var dot=document.getElementById('dot'),ct=document.getElementById('connt');
   dot.className='dot'+(live?' on':' bad');
   ct.textContent=live?('실시간 연결됨 · '+clock(lastAt)):(gotData?'연결이 끊겼습니다 · 마지막 화면':'연결 중…');
