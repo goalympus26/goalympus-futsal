@@ -57,6 +57,8 @@ nav{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);mar
 nav a{padding:12px 16px;color:var(--muted);text-decoration:none;font-weight:700;white-space:nowrap;border-bottom:4px solid transparent;margin-bottom:-2px}
 nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--red)}
 a:focus-visible,button:focus-visible{outline:3px solid var(--royal);outline-offset:2px}
+.banner.sw{border-left-color:var(--red);color:var(--ink);font-size:14px}
+.banner.sw a{color:var(--royal);font-weight:700;margin-left:6px;white-space:nowrap}
 .banner{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--warn);padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--muted)}
 .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
 h2{font-size:16px;margin:22px 0 10px;letter-spacing:.04em}
@@ -343,6 +345,9 @@ function parseCSV(t){
   return rows;}
 function sheetURL(name,range){
   return 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&headers=0&sheet='+encodeURIComponent(name)+'&range='+range+'&t='+Date.now();}
+function sportOf(s){s=String(s||'');return /축구|soccer/i.test(s)?'soccer':(/풋살|futsal/i.test(s)?'futsal':'');}
+var SPORT='';
+function sportBanner(){return SPORT==='futsal'?'<div class="banner sw"><b>지금은 풋살 경기가 진행 중입니다.</b><a href="index.html">풋살 페이지로 이동 →</a></div>':'';}
 async function getSheet(name,range){
   var r=await fetch(sheetURL(name,range),{cache:'no-store'});
   if(!r.ok)throw new Error('HTTP '+r.status);
@@ -358,6 +363,7 @@ async function refresh(){
       else if(k==='team'){var c2=(r[1]||'').trim();if(FUTSAL.indexOf(c2)>=0)F[c2]={name:(r[2]||'').trim(),size:+(r[4]||0)||0};}
       else if(k)K[k]=(r[1]||'').trim();});
     if(!pub.length)throw new Error('데이터 없음');
+    SPORT=sportOf(K.activeSport);
     ['title','subtitle','date','hours','place'].forEach(function(k){if(K[k])cfg[k]=K[k];});
     /* 축구데이터 탭 */
     var isSoc=!!(soc&&soc.some(function(r){return (r[0]||'').trim()==='sport'&&(r[1]||'').trim().toLowerCase()==='soccer';}));
@@ -590,7 +596,7 @@ function render(){
   var dot=document.getElementById('dot'),ct=document.getElementById('connt');
   dot.className='dot'+(live?' on':' bad');
   ct.textContent=live?('실시간 연결됨 · '+clock(lastAt)):(gotData?'연결이 끊겼습니다 · 마지막 화면':'연결 중…');
-  document.getElementById('notice').innerHTML=(!live&&location.protocol==='file:')?'<div class="banner">이 파일을 더블클릭으로 직접 열면 구글 보안 때문에 시트를 읽을 수 없습니다. 인터넷 주소(GitHub Pages)로 여세요.</div>':((!live&&errMsg)?'<div class="banner">시트를 불러오지 못했습니다 ('+esc(errMsg)+'). 잠시 뒤 자동으로 다시 시도합니다.</div>':'');
+  document.getElementById('notice').innerHTML=sportBanner()+((!live&&location.protocol==='file:')?'<div class="banner">이 파일을 더블클릭으로 직접 열면 구글 보안 때문에 시트를 읽을 수 없습니다. 인터넷 주소(GitHub Pages)로 여세요.</div>':((!live&&errMsg)?'<div class="banner">시트를 불러오지 못했습니다 ('+esc(errMsg)+'). 잠시 뒤 자동으로 다시 시도합니다.</div>':''));
   var h='';
   if(tab==='teams')h=vTeams();else if(tab==='schedule')h=vSchedule();else if(tab==='monitor')h=vMonitor();else h=vScore();
   document.getElementById('app').innerHTML=h;}
